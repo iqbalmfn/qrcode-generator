@@ -86,7 +86,7 @@ function App() {
 
   return (
     <div>
-      <h1>QR Code Generator</h1>
+      <h1 style={{marginBottom:'-15px'}}>QR Code Generator</h1>
       <p>
         by <a href="https://iqbalmfn.com">iqbalmfn</a>
       </p>
