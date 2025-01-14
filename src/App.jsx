@@ -113,7 +113,7 @@ function App() {
               style={{
                 display: isGenerated ? "block" : "none",
                 maxWidth: "100%", // Pastikan canvas tidak melebar lebih dari lebar layar
-                margin: "0 auto", // Memusatkan canvas
+                margin: isGenerated ? "0 0 20px 0" : "0 auto", // Memusatkan canvas
               }}
             />
           )}
