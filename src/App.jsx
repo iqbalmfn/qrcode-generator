@@ -4,6 +4,7 @@ import "./App.css";
 
 function App() {
   const [inputText, setInputText] = useState("");
+  const [logo, setLogo] = useState(null); // State untuk logo
   const canvasRef = useRef(null); // Referensi untuk elemen canvas
   const [isGenerated, setIsGenerated] = useState(false);
   const [canvasSize, setCanvasSize] = useState(512); // Resolusi canvas, default 512px
@@ -23,6 +24,13 @@ function App() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // Menggunakan useEffect untuk memantau perubahan inputText
+  useEffect(() => {
+    if (!inputText) {
+      setIsGenerated(false);
+    }
+  }, [inputText]);
 
   // Fungsi untuk men-download QR code sebagai gambar PNG
   const handleDownload = () => {
@@ -45,7 +53,34 @@ function App() {
           if (error) console.error(error);
         }
       );
+      if (logo) {
+        addLogoToQRCode(); // Menambahkan logo setelah QR code digenerate
+      }
       setIsGenerated(true);
+    }
+  };
+
+  // Fungsi untuk menambahkan logo ke QR code
+  const addLogoToQRCode = () => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    const logoImg = new Image();
+
+    logoImg.src = URL.createObjectURL(logo);
+    logoImg.onload = () => {
+      const logoSize = canvasSize / 7; // Ukuran logo, 1/5 dari ukuran QR code
+      const xPos = (canvasSize - logoSize) / 2; // Posisi logo di tengah
+      const yPos = (canvasSize - logoSize) / 2;
+
+      context.drawImage(logoImg, xPos, yPos, logoSize, logoSize); // Menggambar logo di atas QR code
+    };
+  };
+
+  // Fungsi untuk menangani upload logo
+  const handleLogoUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setLogo(file); // Menyimpan file logo ke state
     }
   };
 
@@ -83,6 +118,14 @@ function App() {
             />
           )}
         </div>
+        <div>
+          <label style={{fontSize:'14px'}}>Logo (optional): </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleLogoUpload}
+          />
+        </div>
         <div style={{ margin: "20px 0" }}>
           <label>Adjust Size: </label>
           <input
@@ -100,11 +143,13 @@ function App() {
             Generate QR Code
           </button>
         </div>
-        <div>
-          <button onClick={handleDownload} disabled={!inputText}>
-            Download QR Code
-          </button>
-        </div>
+        {isGenerated && inputText ? (
+          <div>
+            <button onClick={handleDownload} disabled={!inputText}>
+              Download QR Code
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );
