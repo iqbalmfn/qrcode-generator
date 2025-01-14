@@ -60,7 +60,7 @@ function App() {
     }
   };
 
-  // Fungsi untuk menambahkan logo ke QR code
+  // Fungsi untuk menambahkan logo ke QR code dengan mempertahankan orientasi aslinya
   const addLogoToQRCode = () => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
@@ -68,11 +68,23 @@ function App() {
 
     logoImg.src = URL.createObjectURL(logo);
     logoImg.onload = () => {
-      const logoSize = canvasSize / 7; // Ukuran logo, 1/5 dari ukuran QR code
-      const xPos = (canvasSize - logoSize) / 2; // Posisi logo di tengah
-      const yPos = (canvasSize - logoSize) / 2;
+      // Menghitung ukuran logo berdasarkan ukuran canvas, dengan mempertahankan rasio aspek
+      const maxLogoWidth = canvasSize / 6; // Maksimal lebar logo 1/3 dari lebar canvas
+      const maxLogoHeight = canvasSize / 6; // Maksimal tinggi logo 1/3 dari tinggi canvas
+      let logoWidth = logoImg.width;
+      let logoHeight = logoImg.height;
 
-      context.drawImage(logoImg, xPos, yPos, logoSize, logoSize); // Menggambar logo di atas QR code
+      // Menyesuaikan logo agar tidak lebih besar dari ukuran maksimal
+      if (logoWidth > maxLogoWidth || logoHeight > maxLogoHeight) {
+        const ratio = Math.min(maxLogoWidth / logoWidth, maxLogoHeight / logoHeight);
+        logoWidth = logoWidth * ratio;
+        logoHeight = logoHeight * ratio;
+      }
+
+      const xPos = (canvasSize - logoWidth) / 2; // Posisi logo di tengah
+      const yPos = (canvasSize - logoHeight) / 2;
+
+      context.drawImage(logoImg, xPos, yPos, logoWidth, logoHeight); // Menggambar logo di atas QR code
     };
   };
 
@@ -86,7 +98,7 @@ function App() {
 
   return (
     <div>
-      <h1 style={{marginBottom:'-15px'}}>QR Code Generator</h1>
+      <h1 style={{ marginBottom: "-15px" }}>QR Code Generator</h1>
       <p>
         by <a href="https://iqbalmfn.com">iqbalmfn</a>
       </p>
@@ -104,7 +116,7 @@ function App() {
             marginBottom: "20px",
           }}
         />
-        <div>
+        <div style={{margin:'auto'}}>
           {inputText && (
             <canvas
               ref={canvasRef}
@@ -113,13 +125,13 @@ function App() {
               style={{
                 display: isGenerated ? "block" : "none",
                 maxWidth: "100%", // Pastikan canvas tidak melebar lebih dari lebar layar
-                margin: isGenerated ? "0 0 20px 0" : "0 auto", // Memusatkan canvas
+                margin: "0 auto", // Memusatkan canvas
               }}
             />
           )}
         </div>
-        <div>
-          <label style={{fontSize:'14px'}}>Logo (optional): </label>
+        <div style={{margin: isGenerated ? "20px 0 0 0" : "0"}}>
+          <label style={{ fontSize: "14px" }}>Logo (optional): </label>
           <input
             type="file"
             accept="image/*"
